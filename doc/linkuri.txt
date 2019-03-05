@@ -1,0 +1,17 @@
+Sa efectuat o scanare de IP pentru a se vedea IP-urile placilor raspberry cu rogramul n-map.
+
+Conectarea la raspberry utilizand programul urmator:
+https://the.earth.li/~sgtatham/putty/latest/w64/putty.exe
+
+How to Write and Run a C Program on the Raspberry Pi
+http://www.circuitbasics.com/how-to-write-and-run-a-c-program-on-the-raspberry-pi/
+Sau folosit comenzile urmatoare;
+pwd == arata calea curenta
+ls == vizualizare fisiere
+ls - alsh == vizualizarea tuturor fisierelor
+cat == vizualizare informatia din fisier
+nano == creare fisier/intrare in fisier pentru a modifica continutul
+
+Blinking LED on Raspberry Pi using C:
+https://www.admfactory.com/blinking-led-on-raspberry-pi-using-c/
+
