@@ -15,3 +15,5 @@ nano == creare fisier/intrare in fisier pentru a modifica continutul
 Blinking LED on Raspberry Pi using C:
 https://www.admfactory.com/blinking-led-on-raspberry-pi-using-c/
 
+Raspberry Pi Pinout
+https://pinout.xyz/pinout/pin29_gpio5#

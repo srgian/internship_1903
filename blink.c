@@ -1,6 +1,6 @@
 #include <wiringPi.h>
 #include <stdio.h>
-#define LedPin 0
+#define LedPin 21
 
 int main(void){
 if(wiringPiSetup() == -1){
