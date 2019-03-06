@@ -15,3 +15,19 @@ nano == creare fisier/intrare in fisier pentru a modifica continutul
 Blinking LED on Raspberry Pi using C:
 https://www.admfactory.com/blinking-led-on-raspberry-pi-using-c/
 
+Instalarea "wiring pi" pentru interfatarea librariilor GPIO pentru raspberry pi sau urmarit comenzile de la adresa urmatoare:
+http://wiringpi.com/download-and-install/
+omitand comenzile de update si upgrade.
+
+Sau creat conturi pe github si sa creat un spatiu de lucru : 
+https://github.com/srgian/internship_1903/tree/077829d0d7ea4a3a5531a832501d929b8e447bb2
+Pentru a insera informatia la adresa de mai sus se efectueaza urmatoarele comenzi:
+-se verifica daca nu au aparut informati adaugate intre timp cu comanda:
+	'git status'
+-cu comanda 
+	 git commit -m 'text'
+- se introduce o scuta descriere a modificari
+	git push origin master
+-se incarca  modificarile pe retea
+	git pull origin master
+- se extrage informatia de pe retea 
