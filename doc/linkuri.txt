@@ -15,6 +15,7 @@ nano == creare fisier/intrare in fisier pentru a modifica continutul
 Blinking LED on Raspberry Pi using C:
 https://www.admfactory.com/blinking-led-on-raspberry-pi-using-c/
 
+<<<<<<< HEAD
 Instalarea "wiring pi" pentru interfatarea librariilor GPIO pentru raspberry pi sau urmarit comenzile de la adresa urmatoare:
 http://wiringpi.com/download-and-install/
 omitand comenzile de update si upgrade.
@@ -31,3 +32,7 @@ Pentru a insera informatia la adresa de mai sus se efectueaza urmatoarele comenz
 -se incarca  modificarile pe retea
 	git pull origin master
 - se extrage informatia de pe retea 
+=======
+Raspberry Pi Pinout
+https://pinout.xyz/pinout/pin29_gpio5#
+>>>>>>> 4ee4f7403aa0d933001d79649d83bdd63eafa227
