@@ -1,7 +1,13 @@
-Sa efectuat o scanare de IP pentru a se vedea IP-urile placilor raspberry cu rogramul n-map.
+******************** Internship Martie - Mai 2019 ********************
+
+
+
+Sa efectuat o scanare de IP pentru a se vedea IP-urile placilor raspberry cu programul n-map.
+
 
 Conectarea la raspberry utilizand programul urmator:
 https://the.earth.li/~sgtatham/putty/latest/w64/putty.exe
+
 
 How to Write and Run a C Program on the Raspberry Pi
 http://www.circuitbasics.com/how-to-write-and-run-a-c-program-on-the-raspberry-pi/
@@ -12,8 +18,22 @@ ls - alsh == vizualizarea tuturor fisierelor
 cat == vizualizare informatia din fisier
 nano == creare fisier/intrare in fisier pentru a modifica continutul
 
+
+GIT Comenzi:
+git status
+
+git add
+git commit -m 'mesaj'
+git push origin master
+
+
 Blinking LED on Raspberry Pi using C:
 https://www.admfactory.com/blinking-led-on-raspberry-pi-using-c/
 
+
 Raspberry Pi Pinout
 https://pinout.xyz/pinout/pin29_gpio5#
+
+
+28BYJ-48 Stepper Motor Technical Specifications
+https://components101.com/motors/28byj-48-stepper-motor
