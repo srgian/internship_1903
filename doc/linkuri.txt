@@ -30,6 +30,7 @@ git push origin master
 Blinking LED on Raspberry Pi using C:
 https://www.admfactory.com/blinking-led-on-raspberry-pi-using-c/
 
+<<<<<<< HEAD
 
 Raspberry Pi Pinout
 https://pinout.xyz/pinout/pin29_gpio5#
@@ -37,3 +38,26 @@ https://pinout.xyz/pinout/pin29_gpio5#
 
 28BYJ-48 Stepper Motor Technical Specifications
 https://components101.com/motors/28byj-48-stepper-motor
+=======
+<<<<<<< HEAD
+Instalarea "wiring pi" pentru interfatarea librariilor GPIO pentru raspberry pi sau urmarit comenzile de la adresa urmatoare:
+http://wiringpi.com/download-and-install/
+omitand comenzile de update si upgrade.
+
+Sau creat conturi pe github si sa creat un spatiu de lucru : 
+https://github.com/srgian/internship_1903/tree/077829d0d7ea4a3a5531a832501d929b8e447bb2
+Pentru a insera informatia la adresa de mai sus se efectueaza urmatoarele comenzi:
+-se verifica daca nu au aparut informati adaugate intre timp cu comanda:
+	'git status'
+-cu comanda 
+	 git commit -m 'text'
+- se introduce o scuta descriere a modificari
+	git push origin master
+-se incarca  modificarile pe retea
+	git pull origin master
+- se extrage informatia de pe retea 
+=======
+Raspberry Pi Pinout
+https://pinout.xyz/pinout/pin29_gpio5#
+>>>>>>> 4ee4f7403aa0d933001d79649d83bdd63eafa227
+>>>>>>> 25887dc923a7fe2b6d027da5fde367e1b91b73d5
