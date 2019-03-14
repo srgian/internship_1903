@@ -83,13 +83,13 @@ int32_t dig_P7=((g2<<8)|(g1<<0));
 int32_t dig_P8=((h2<<8)|(h1<<0));
 int32_t dig_P9=((i2<<8)|(i1<<0));
 
-    signed int var1, var2, p;
-    var1 = t_fine-128000;
-    var2 = var1 * var1 * dig_P6;
-    var2 = var2 + ((var1 * dig_P5) << 17);
-    var2 = var2 + ((dig_P4)<<35);
-    var1 = ((var1 * var1 * dig_P3)>>8) + ((var1 * dig_P2)<<12);
-    var1 = ((((1)<<47) + var1)) * (dig_P1) >> 3;
+    int64_t var1, var2, p;
+    var1 = (int64_t)t_fine-128000;
+    var2 = var1 * var1 *(int64_t) dig_P6;
+    var2 = var2 + ((var1 *(int64_t) dig_P5) << 17);
+    var2 = var2 + (((int64_t)dig_P4)<<35);
+    var1 = ((var1 * var1 *(int64_t)dig_P3)>>8) + ((var1 *(int64_t)dig_P2)<<12);
+    var1 = ((((int64_t)1)<<47) + var1) * (((int64_t)dig_P1) >> 33);
     if (var1 == 0)
 {
 return 0;
@@ -97,10 +97,10 @@ return 0;
 
     p= 1048576-adc;
     p= (((p<<31)-var2)*3125)/var1;
-    var1 = ((dig_P9) *( p>>13)*(p>>13))>>25;
-    var2 = ((dig_P8) * p) >> 19;
-    p = ((p+var1+var2)>>8) + ((dig_P7)<<4);
-    return p; 
+    var1 = (((int64_t)dig_P9) *( p>>13)*(p>>13))>>25;
+    var2 = (((int64_t)dig_P8) * p) >> 19;
+    p = ((p+var1+var2)>>8) + (((int64_t)dig_P7)<<4);
+    return(uint32_t) p; 
 
 }
 
