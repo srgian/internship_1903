@@ -1,0 +1,17 @@
+Pentru conectarea folderului de pe pc cu cel de pe RPI: 
+
+sudo mount -t cifs -o username=nume,password=parola,gid=1000,uid=1000 //IP/internship ~/internship
+
+IP=IP-ul calculatorului
+uid=user identifier
+gid=group identifier
+
+Instructiuni pt. terminalul Linux:
+
+- wget = download
+- tar zxvf nume_arhiva = extragere arhiva
+
+     z=zip
+     x=extract
+     v=verbals
+     f=file
