@@ -8,7 +8,7 @@ gid=group identifier
 
 Instructiuni pt. terminalul Linux:
 
-- wget = download
+- wget = download cod sursa
 - tar zxvf nume_arhiva = extragere arhiva
 
      z=zip
