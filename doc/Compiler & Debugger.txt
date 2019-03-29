@@ -1,0 +1,39 @@
+https://www.cososo.co.uk/2015/12/cross-development-using-eclipse-and-gcc-for-the-rpi/
+
+1. Download GCC cross compiler & install: http://gnutoolchains.com/raspberry/ --> raspberry-gcc6.3.0-r4.exe (534 MB)
+
+2. Run C:\SysGCC\raspberry\TOOLS\UpdateSysroot.bat
+
+3. Host name: IP of RPi
+   User name: pi
+   Password:  password of RPi
+
+4. Connect --> Synchronize
+
+5. Installation of GDB server from Putty: sudo apt-get install gdbserver.
+
+6. Creating folder on the RPi from Putty, in /home/pi: mkdir remote-debugging.
+
+7. In ECLIPSE: New…->C++ Project. Select the Hello World C++ Project and Cross GCC, give the project a name --> Next --> Next --> Next 
+   Cross compiler prefix: arm-linux-gnueabihf-
+   Cross compiler path: C:\SysGCC\Raspberry\bin
+
+8. Build project.
+
+9. Right click on the HelloWorld project in the project explorer and New->File, set the name to .gdbinit and click Finish.
+
+10. In the .gdbinit file, set sys root to point to the cross tools: set sysroot C:\SysGCC\Raspberry\arm-linux-gnueabihf\sysroot .
+
+11. In the project explorer right click on the HelloWorld project and select Debug As->Debug Configurations…, then select C/C++ Remote Application and click the New button.
+
+12. Choose C/C++ Remote Application
+    C/C++ Application: Search Project --> Select it
+
+13. Connection: Remote Host .
+
+14. At Remote Absolute File Path for C/C++ Application, browse for /home/pi/remote-debugging/file_name .
+ 
+15. At the Debugger tab --> GDB debugger: C:\SysGCC\raspberry\bin\arm-linux-gnueabihf-gdb.exe
+			--> GDB command file: .gdbinit
+
+16. Apply & Debug
