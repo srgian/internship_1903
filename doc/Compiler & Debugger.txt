@@ -1,5 +1,7 @@
 https://www.cososo.co.uk/2015/12/cross-development-using-eclipse-and-gcc-for-the-rpi/
 
+You must have JDK (Java Develeopment Kit) and Eclipse installed.
+
 1. Download GCC cross compiler & install: http://gnutoolchains.com/raspberry/ --> raspberry-gcc6.3.0-r4.exe (534 MB)
 
 2. Run C:\SysGCC\raspberry\TOOLS\UpdateSysroot.bat
@@ -14,7 +16,7 @@ https://www.cososo.co.uk/2015/12/cross-development-using-eclipse-and-gcc-for-the
 
 6. Creating folder on the RPi from Putty, in /home/pi: mkdir remote-debugging.
 
-7. In ECLIPSE: New…->C++ Project. Select the Hello World C++ Project and Cross GCC, give the project a name --> Next --> Next --> Next 
+7. In ECLIPSE: Newâ€¦->C++ Project. Select the Hello World C++ Project and Cross GCC, give the project a name --> Next --> Next --> Next 
    Cross compiler prefix: arm-linux-gnueabihf-
    Cross compiler path: C:\SysGCC\Raspberry\bin
 
@@ -24,7 +26,7 @@ https://www.cososo.co.uk/2015/12/cross-development-using-eclipse-and-gcc-for-the
 
 10. In the .gdbinit file, set sys root to point to the cross tools: set sysroot C:\SysGCC\Raspberry\arm-linux-gnueabihf\sysroot .
 
-11. In the project explorer right click on the HelloWorld project and select Debug As->Debug Configurations…, then select C/C++ Remote Application and click the New button.
+11. In the project explorer right click on the HelloWorld project and select Debug As->Debug Configurationsâ€¦, then select C/C++ Remote Application and click the New button.
 
 12. Choose C/C++ Remote Application
     C/C++ Application: Search Project --> Select it
