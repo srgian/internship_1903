@@ -4,7 +4,7 @@
 
 #define LEDR 7
 #define LEDV 28
-#define SNZ 29
+#define SNZ 27
 #define BUZZ 26
 
 int detectare_miscare=0;
@@ -20,7 +20,8 @@ void setup()
     digitalWrite(BUZZ, HIGH);
     digitalWrite(LEDV,LOW);
     digitalWrite(LEDR,LOW);
-    delay(30000);
+    delay(60000);  //doar la punerea in functiune, senzorul se aclimatizeaza la energia infrarosie din incapere; 
+                   //linia se poate comenta dupa aceea 
     digitalWrite(LEDV,HIGH);
 }
 
@@ -31,17 +32,17 @@ void loop()
         digitalWrite(LEDR,valoare_senzor);
         digitalWrite(BUZZ,LOW);
         detectare_miscare=1;
-        delay(3000);
+        delay(3000); //led-ul rosu ramane aprins 3 secunde, iar buzzerul la fel
     } else {
         digitalWrite(LEDR,LOW);
         digitalWrite(BUZZ,HIGH);
     }
 
-    if(detectare_miscare==1){
+    if(detectare_miscare==1){   //resetare la valorile initiale
         digitalWrite(BUZZ, HIGH);
         digitalWrite(LEDV,LOW);
         digitalWrite(LEDR,LOW);
-        delay(6000);
+        delay(6000);    //6 secunde pana va putea detecta din nou miscare
         digitalWrite(LEDV,HIGH);
         detectare_miscare=0;
     }
