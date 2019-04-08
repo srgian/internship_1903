@@ -1,209 +1,311 @@
+/*****************************************
+keypad with finite states
+execute with:
+gcc securitate.c -o securitate -lwiringPi -lpthread
+******************************************/
+
 #include <wiringPi.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
+#include <pthread.h>
+#include "keypad.h"
 
-#define ROWS 4
-#define COLS 4
-#define BUZZER 29
-#define BUTTON 22
+#define BUTTON 25
+#define LEDV 24
+#define LEDR 23
+#define SNZ 27
 
-
-char pressedKey = '\0';
-int rowPins[ROWS] = {1, 4, 5, 6};
-int colPins[COLS] = {12, 3, 2, 0};
-
-char keys[ROWS][COLS] =
+enum states
 {
-    {'1', '2', '3', 'A'},
-    {'4', '5', '6', 'B'},
-    {'7', '8', '9', 'C'},
-    {'*', '0', '#', 'D'}
+    START,
+    DEZARMAT,
+    ARMAT,
+    ALARMA,
+    STOP
 };
 
-void init_keypad()
+int detectare_miscare=0;
+int valoare_senzor;
+
+enum states state = START;
+int  exit = 0, button=0, increment = 0, inc=0, i = 0, press = 0, correct ;
+pthread_t th_led, th_senzormiscare;
+FILE *fp;
+char passlocal[9],passdate[10];
+char pass[9],azi[10];
+
+void *senzormiscare()
 {
-    for (int c = 0; c < COLS; c++)
-    {
-        pinMode(colPins[c], OUTPUT);
-        digitalWrite(colPins[c], HIGH);
+    valoare_senzor=digitalRead(SNZ);
+    if(valoare_senzor==1){
+    	state=ALARMA;
+    	printf("miscare detectata.\n");
+    	do{
+    		//if (state!=ALARMA)
+    	//printf("miscare detectata.\n");
+        digitalWrite(LEDR,valoare_senzor);
+                digitalWrite(LEDR, LOW);
+               	delay(1000);
+                digitalWrite(LEDR, HIGH);
+                delay(1000);
+    //state=ALARMA;
+    }while(state!=DEZARMAT);
+        //detectare_miscare=1;
+        //delay(3000);
     }
-    for (int r = 0; r < ROWS; r++)
+        digitalWrite(LEDR,HIGH);
+        digitalWrite(BUZZER,HIGH);
+
+
+
+}
+
+void exitp(char x)
+{
+    if (x == '*')
     {
-        pinMode(rowPins[0], INPUT);
-        pullUpDnControl(rowPins[r], PUD_UP);
+        state=STOP;
     }
 }
 
-int findLowRow()
+void azii()
 {
-    for (int r = 0; r < ROWS; r++)
+
+    int day, month, year;
+    time_t now;
+    time(&now);
+    struct tm *local = localtime(&now);
+    day = local->tm_mday;        	// get day of month (1 to 31)
+    month = local->tm_mon + 1;   	// get month of year (0 to 11)
+    year = local->tm_year + 1900;	// get year since 1900
+    sprintf(azi,"%d/%02d/%02d", year, month, day);
+}
+
+void *ledf ()
+{
+    do
     {
-        if (digitalRead(rowPins[r]) == LOW)
+        digitalWrite(LEDR, LOW);
+        delay(1000);
+        digitalWrite(LEDR, HIGH);
+        delay(1000);
+    }
+    while(correct!=1);
+}
+
+void start()
+{
+    digitalWrite(LEDR, HIGH);
+    digitalWrite(LEDV, LOW);
+    state=DEZARMAT;
+}
+
+void buzzArmat()
+{
+    printf("# Armat! \n");
+    digitalWrite(BUZZER, LOW);
+    delay(100);
+    digitalWrite(BUZZER, HIGH);
+    delay(100);
+    pass[0] = '\0';
+    button=1;
+    i = 0;
+}
+
+void buzzArmatFail()
+{
+    printf("Usa deschisa \nSistemul nu a putut fi armat. \n");
+    digitalWrite(BUZZER, LOW);
+    delay(300);
+    digitalWrite(BUZZER, HIGH);
+    pass[0] = '\0';
+    i = 0;
+}
+
+void armare(char x)
+{
+    if (x == '#')
+    {
+        inc++;
+        if (inc == 20)
         {
-//            printf("Row %d LOW\n", r);
-            return r;
+        	if (digitalRead(BUTTON) == HIGH)
+            {
+                buzzArmat();
+                state = ARMAT;
+                inc=0;
+                press=1;
+            }
+            else
+            {
+                buzzArmatFail();
+                state = DEZARMAT;
+                inc=0;
+                press=1;
+            }
+        }
+    }
+    else
+    {
+        inc=0;
+    }
+}
+
+
+
+void verificarebuton()
+{
+	if (digitalRead(BUTTON) != HIGH)
+	{
+		button=0;
+	}
+	else
+	{
+		button=1;
+	}
+	if((button==0)&&(state==ARMAT)){
+		pthread_create( &th_led, NULL, ledf, NULL );
+		printf("Usa deschisa \n");
+		state=ALARMA;
+	}
+}
+
+void verificare(char x)
+{
+	if (digitalRead(BUTTON) == LOW)
+		verificarebuton();
+	         /*   {
+					if (state == ARMAT){
+					printf("Usa deschisa!\n");}
+	                state = ALARMA;
+	                pthread_create( &th_led, NULL, ledf, NULL );
+	            }*/
+
+    if (press == 0)
+    {
+        press = 1;
+        if ((x == 'D')||(i==8))
+        {
+            fp = fopen("parole.txt", "r");
+            while (fscanf(fp, " %1023s", passlocal) == 1)
+                        {
+                            fscanf(fp, " %1023s", passdate);
+                            if (strcmp(passlocal, pass) == 0)
+                            {
+                                if (strcmp(passdate, azi) >= 0)
+                                    correct = 1;
+                            }
+                        }
+            if (correct == 1)
+            {
+                printf("Dezarmat\n");
+                state = DEZARMAT;
+                digitalWrite(BUZZER, LOW);
+                delay(100);
+                digitalWrite(BUZZER, HIGH);
+                pass[0] = '\0';
+                i = 0;
+                correct = 0;
+            }
+            else
+            {
+                /* Create led thread */
+                pthread_create( &th_led, NULL, ledf, NULL );
+                printf("INCORRECT\n");
+                state=ALARMA;
+                digitalWrite(BUZZER, LOW);
+                delay(300);
+                digitalWrite(BUZZER, HIGH);
+                pass[0] = '\0';
+                i = 0;
+            }
         }
         else
         {
-//         printf("Row %d HIGH\n", r);
+            pass[i] = x;
+            pass[i + 1] = '\0';
+            i++;
+            printf("current sequence %s\n", pass);
         }
     }
-    return -1;
-}
-
-char get_key()
-{
-    int rowIndex;
-    for (int c = 0; c < COLS; c++)
-    {
-        digitalWrite(colPins[c], LOW);
-    //    printf("Col %d\n", c);
-        // delay(1000);
-        rowIndex = findLowRow();
-        if (rowIndex > -1)
-        {
-            if (!pressedKey){ pressedKey = keys[rowIndex][c];digitalWrite(BUZZER, LOW);
-                        delay(100);
-                        digitalWrite(BUZZER, HIGH);}
-            digitalWrite(colPins[c], HIGH);
-            return pressedKey;
-        }
-        digitalWrite(colPins[c], HIGH);
-    }
-    pressedKey = '\0';
-    return pressedKey;
 }
 
 int main(void)
 {
-    int k, correct, increment=0, inc=0, i=0,press=0;
-    char test[]="1234";
-    char passlocal[2][10]=
+	azii();
+    if(wiringPiSetup() == -1)
     {
-        {"1234"},
-        {"1111"}
-    };
-    /*
-    FILE *fp;
-    char buff[255];
-    //fp = fopen("~/internshipr/alarma/parole.txt", "r");
-    fp = fopen("parole.txt", "r");
-    //    C:\Internshipr\alarma
-    fscanf(fp, "%s", buff);
-    printf("1: %s\n", buff );
+        printf("setup wiringPi failed! \n");
+        return -1;
+    }
+    pinMode(SNZ, INPUT);
+    pinMode(LEDV, OUTPUT);
+    pinMode(LEDR, OUTPUT);
 
-    fgets(buff, 255, (FILE*)fp);
-    printf("2: %s\n", buff );
-
-    fgets(buff, 255, (FILE*)fp);
-    printf("3: %s\n", buff );
-    fclose(fp);
-
-   */
-
-    char pass[100];
-    wiringPiSetup();
-
+    digitalWrite(LEDV, LOW);
     pinMode(BUTTON, INPUT);
     pinMode(BUZZER, OUTPUT);
+
     digitalWrite(BUZZER, HIGH);
 
     init_keypad();
-
-    while(1)
+    char x;
+    while (exit!=1)
     {
-        char x = get_key();
-        if (x)
+        x = get_key();
+        switch(state)
         {
-            if(x=='A')
+        case START:
+            printf("System ON!\nHold # to arm the device.\n");
+            start();
+            break;
+        case DEZARMAT:
+            correct=1;
+            if(x)
             {
-                increment++;
-                if(increment==20)
-                {
-                    for (int j=0;j<2;j++)
-                    {
-                        digitalWrite(BUZZER, LOW);
-                        delay(100);
-                        digitalWrite(BUZZER, HIGH);
-                        delay(100);
-                    }
-                    printf("%d \n",increment);
-                }
+                exitp(x);
+                armare(x);
             }
-            if(x=='#')
+            delay(50);
+            break;
+        case ARMAT:
+            correct=0;
+            pthread_create( &th_senzormiscare, NULL, senzormiscare, NULL );
+            verificarebuton();
+            if(x)
             {
-                inc++;
-                if(inc==20)
-                {
-                    if (digitalRead (BUTTON) !=HIGH)
-                	{
-                    	  printf("# Armat! \n");
-                    	  for (int l=0;l=2;l++)
-                          {
-                    	    digitalWrite(BUZZER, LOW);
-                    	    delay(300);
-                    	    digitalWrite(BUZZER, HIGH);
-                    	  }
-                    	  for (int j=0;j<=5;j++)
-                    	  {
-                            digitalWrite(BUZZER, LOW);
-                            delay(100);
-                            digitalWrite(BUZZER, HIGH);
-                            delay(1000);
-                          }
-                        }
-                	else printf("Usa deschisa \n");
-		       }
-		       inc=0;
+                exitp(x);
+                verificare(x);
             }
-            if (press==0)
+            else
             {
-                press=1;
-                if(x=='D')
-                {
-                    for(k=0;k<2;k++)
-                    {
-                        if(strcmp(passlocal[k], pass)==0)
-                    {
-                        correct=1;
-                    }
-                    }
-                    if(correct==1)
-                    {
-                        printf("Dezarmat\n");
-                        digitalWrite(BUZZER, LOW);
-                        delay(100);
-                        digitalWrite(BUZZER, HIGH);
-                        pass[0]='\0';
-                        i=0;
-                        correct=0;
-                    }
-                    else
-                    {
-                        printf("INCORRECT\n");
-                        digitalWrite(BUZZER, LOW);
-                        delay(300);
-                        digitalWrite(BUZZER, HIGH);
-                        pass[0]='\0';
-                        i=0;
-                    }
-                }
-                else
-                {
-                    pass[i]=x;
-                    pass[i+1]='\0';
-                    i++;
-                    printf("current sequence %s\n", pass);
-                }
+                press = 0;
+                increment = 0;
             }
+            delay(50);
+            break;
+        case ALARMA:
+        	verificarebuton();
+            if(x)
+            {
+                exitp(x);
+                verificare(x);
+            }
+            else
+            {
+                press = 0;
+                increment = 0;
+            }
+            delay(50);
+            break;
+        case STOP:
+            exit=1;
+            break;
         }
-        else{
-            press=0;
-            increment=0;
-        }
-
-        delay(50);
-
     }
+    digitalWrite(LEDV, HIGH);
+    digitalWrite(LEDR, HIGH);
+    printf("System OFF\n");
     return 0;
 }
