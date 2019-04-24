@@ -36,6 +36,13 @@ enum states
     STOP
 };
 
+PGconn          *conn;
+PGresult        *res;
+
+
+char sql[255];
+
+
 int detectare_miscare=0;
 int valoare_senzor;
 int  exitv = 0, button=0, increment = 0, inc=0, i = 0, j = 0, press = 0, correct, sockfd ;
@@ -61,7 +68,8 @@ void *senzormiscare() // thread verificare miscare
     valoare_senzor=digitalRead(SNZ);
     if(valoare_senzor==1)
     {
-        state=ALARMA;
+    	databasealarma();
+    	state=ALARMA;
         printf("miscare detectata.\n");
         do
         {
@@ -110,13 +118,92 @@ void *clientsend () //thread trimitere date client
     pthread_exit(NULL);
 }
 
+void databaseexit(char x){
+	conn = PQconnectdb("dbname=internship_1903 host=bizkit.eu user=internship_1903 password=nxHeKuQzP5");
+    if (PQstatus(conn) == CONNECTION_BAD)
+        {
+            puts("We were unable to connect to the database");
+            exit(0);
+        }
+	sprintf(sql, "INSERT INTO public.security( timestamp, tst, alarma, tip) VALUES (localtimestamp, '%c', 'off', 'X')", x);
+	res = PQexec(conn,sql);
+	PQclear(res);
+	PQfinish(conn);
+}
+
+void databasealarma(){
+	conn = PQconnectdb("dbname=internship_1903 host=bizkit.eu user=internship_1903 password=nxHeKuQzP5");
+    if (PQstatus(conn) == CONNECTION_BAD)
+        {
+            puts("We were unable to connect to the database");
+            exit(0);
+        }
+	sprintf(sql, "INSERT INTO public.security( timestamp, alarma, tip) VALUES (localtimestamp, 'on', 'L')");
+	res = PQexec(conn,sql);
+	PQclear(res);
+	PQfinish(conn);
+}
+
+void databasearmat(){
+	conn = PQconnectdb("dbname=internship_1903 host=bizkit.eu user=internship_1903 password=nxHeKuQzP5");
+    if (PQstatus(conn) == CONNECTION_BAD)
+        {
+            puts("We were unable to connect to the database");
+            exit(0);
+        }
+	sprintf(sql, "INSERT INTO public.security( timestamp, tst, alarma, tip) VALUES (localtimestamp, '#', 'off', 'A')");
+	res = PQexec(conn,sql);
+	PQclear(res);
+	PQfinish(conn);
+}
+
+void databasedezarmat(char passlocal1[10]){
+	conn = PQconnectdb("dbname=internship_1903 host=bizkit.eu user=internship_1903 password=nxHeKuQzP5");
+    if (PQstatus(conn) == CONNECTION_BAD)
+        {
+            puts("We were unable to connect to the database");
+            exit(0);
+        }
+    if (state==DEZARMAT)
+    {
+       sprintf(sql, "INSERT INTO public.security( timestamp, tst, alarma, cod, codv, tip) VALUES (localtimestamp, 'D', 'off', '%s', 'Y', 'D')",passlocal1);
+    }
+    else
+    {
+       sprintf(sql, "INSERT INTO public.security( timestamp, tst, alarma, cod, codv, tip) VALUES (localtimestamp, 'D', 'on', '%s', 'N', 'L')",passlocal1);
+    }
+	res = PQexec(conn,sql);
+	PQclear(res);
+	PQfinish(conn);
+}
+
+void databasepinnou(char passlocal1[10]){
+	conn = PQconnectdb("dbname=internship_1903 host=bizkit.eu user=internship_1903 password=nxHeKuQzP5");
+    if (PQstatus(conn) == CONNECTION_BAD)
+        {
+            puts("We were unable to connect to the database");
+            exit(0);
+        }
+    if (state==DEZARMAT)
+    {
+       sprintf(sql, "INSERT INTO public.security( timestamp, tst, alarma, cod, codv, tip) VALUES (localtimestamp, 'D', 'off', '%s', 'Y', 'C')",passlocal1);
+    }
+    else
+    {
+       sprintf(sql, "INSERT INTO public.security( timestamp, tst, alarma, cod, codv, tip) VALUES (localtimestamp, 'D', 'off', '%s', 'N', 'C')",passlocal1);
+    }
+	res = PQexec(conn,sql);
+	PQclear(res);
+	PQfinish(conn);
+}
+
 
 void exitvp(char x)
 {
     if (x == '*')
     {
+    	databaseexit(x);
         state=STOP;
-
     }
 }
 
@@ -191,6 +278,7 @@ void armare(char x) // functie de armare daca tasta "#" este tinuta apasat
             if (digitalRead(BUTTON) == HIGH)
             {
                 buzzArmat();
+                databasearmat();
                 state = ARMAT;
                 inc=0;
                 press=1;
@@ -224,6 +312,7 @@ void verificarebuton() // verifica daca usa/geam este deschis
     {
         pthread_create( &th_led, NULL, ledf, NULL );
         printf("Usa deschisa \n");
+        databasealarma();
         state=ALARMA;
     }
 }
@@ -315,7 +404,7 @@ void introducerePin(char x)
                         mm=atoi(pass);
                         if((mm<1) || (mm>12))
                         {
-                            printf("Luna este incorect!\n");
+                            printf("Luna este incorecta!\n");
                             mm=0;
                             pass[0] = '\0';
                             i = 0;;
@@ -361,7 +450,7 @@ void introducerePin(char x)
                             }
                             else
                             {
-                                printf("Ziua este incorect!\n");
+                                printf("Ziua este incorecta!\n");
                                 dd=0;
                                 pass[0] = '\0';
                                 i = 0;
@@ -374,17 +463,20 @@ void introducerePin(char x)
                             {
                                 sprintf(date,"%s %d/%02d/%02d\n",passlocal, yy, mm, dd); //creare string cu format data
                                 fp = fopen("parole.txt", "a"); //deschidere fisier in mod append pentru a adauga la sfarsitul lui parolele
+
                                 fputs(date, fp);
                                 fclose (fp);
                                 pass[0] = '\0';
                                 i = 0;
                                 yy=mm=dd=0;
                                 state=DEZARMAT;
+                                databasepinnou(passlocal);
                                 printf("PIN-ul nou a fost introdus\nApasa # pentru armare\nApasa A pentru PIN nou\n");
                             }
                             else
                             {
                                 printf("PIN-ul nou nu a putut fi introdus!\nIntroduce PIN nou:\n");
+                                databasepinnou(passlocal);
                                 passlocal[0]='\0';
                                 pass[0] = '\0';
                                 i = 0;
@@ -431,6 +523,7 @@ void verificare(char x)
             {
                 printf("Dezarmat\nApasa # pentru armare\nApasa A pentru PIN nou\n");
                 state = DEZARMAT;
+                databasedezarmat(pass);
                 digitalWrite(BUZZER, LOW);
                 delay(100);
                 digitalWrite(BUZZER, HIGH);
@@ -444,7 +537,9 @@ void verificare(char x)
                 /* Create led thread */
                 pthread_create( &th_led, NULL, ledf, NULL );
                 printf("INCORRECT\n");
+                databasealarma();
                 state=ALARMA;
+                databasedezarmat(pass);
                 digitalWrite(BUZZER, LOW);
                 delay(300);
                 digitalWrite(BUZZER, HIGH);
@@ -482,6 +577,7 @@ int main(void)
     digitalWrite(LEDV, LOW);
 
     struct sockaddr_in servaddr;
+
 
     // socket create and verification
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -603,6 +699,7 @@ int main(void)
             exitv=1;
             delay(1000);
             close(sockfd);
+
             break;
         }
     }
